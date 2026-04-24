@@ -52,23 +52,40 @@ sudo ./engine ps
 
 Screenshot 1: Multi-Container Runtime  
 
-(Insert screenshot showing two cpu_hog processes running)<img width="952" height="213" alt="image" src="https://github.com/user-attachments/assets/9d1576a2-8be4-4575-a8e8-3fb04e6fe908" />
+<img width="952" height="213" alt="image" src="https://github.com/user-attachments/assets/9d1576a2-8be4-4575-a8e8-3fb04e6fe908" />
+
+
+<img width="834" height="290" alt="7" src="https://github.com/user-attachments/assets/887250da-d856-42e6-9e29-7ae279e43f75" />
+
 
 
 Screenshot 2: CLI + IPC  
-(Insert screenshot showing start, already running, stop, ps)
+
+<img width="842" height="367" alt="6" src="https://github.com/user-attachments/assets/457d100b-a115-4bc8-a7f0-dbf812f5f39d" />
+
 
 Screenshot 3: Logging Output  
-(Insert screenshot of logs.txt output)
+
+<img width="643" height="549" alt="9" src="https://github.com/user-attachments/assets/71fc47fc-075c-4399-836b-99f9f2cecd87" />
+
+
+<img width="1209" height="766" alt="10" src="https://github.com/user-attachments/assets/ca3ad984-c831-49ae-8bcd-457b6267a9e2" />
+
 
 Screenshot 4: Kernel Monitor  
-(Insert screenshot of lsmod and dmesg output)
 
-Screenshot 5: Scheduling Experiment  
-(Insert screenshot of top showing cpu_hog using CPU)
+<img width="857" height="339" alt="image" src="https://github.com/user-attachments/assets/6530671d-454d-4fda-9868-336906a08344" />
+
+
+Screenshot 5: Scheduling Experiment 
+
+<img width="1264" height="339" alt="image" src="https://github.com/user-attachments/assets/eee6fcce-199f-4d0f-88a2-ec8a188f0b2b" />
+
 
 Screenshot 6: Cleanup  
-(Insert screenshot showing no cpu_hog processes)
+
+<img width="918" height="140" alt="12" src="https://github.com/user-attachments/assets/6fedba6b-781a-4056-872a-9737ca39aa39" />
+
 
 
 ------------------------------------------------------------
