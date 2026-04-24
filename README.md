@@ -53,10 +53,8 @@ sudo ./engine ps
 Screenshot 1: Multi-Container Runtime  
 
 <img width="952" height="213" alt="image" src="https://github.com/user-attachments/assets/9d1576a2-8be4-4575-a8e8-3fb04e6fe908" />
-
-
-
-
+.
+.
 <img width="834" height="290" alt="7" src="https://github.com/user-attachments/assets/887250da-d856-42e6-9e29-7ae279e43f75" />
 
 
@@ -69,8 +67,8 @@ Screenshot 2: CLI + IPC
 Screenshot 3: Logging Output  
 
 <img width="643" height="549" alt="9" src="https://github.com/user-attachments/assets/71fc47fc-075c-4399-836b-99f9f2cecd87" />
-
-
+.
+.
 <img width="1209" height="766" alt="10" src="https://github.com/user-attachments/assets/ca3ad984-c831-49ae-8bcd-457b6267a9e2" />
 
 
