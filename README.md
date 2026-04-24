@@ -59,7 +59,7 @@ Screenshot 1: Multi-Container Runtime
 
 
 
-Screenshot 2: CLI + IPC  
+Screenshot 2:Command Line Interface 
 
 <img width="842" height="367" alt="6" src="https://github.com/user-attachments/assets/457d100b-a115-4bc8-a7f0-dbf812f5f39d" />
 
