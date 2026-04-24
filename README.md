@@ -1,111 +1,99 @@
-# Multi-Container Runtime
+OS-Jackfruit: Mini Container Runtime
+README
 
-A lightweight Linux container runtime in C with a long-running supervisor and a kernel-space memory monitor.
+1. Team Information
 
-Read [`project-guide.md`](project-guide.md) for the full project specification.
+Name: Ashlesh RV
+SRN: PES1UG24CS088  
 
----
+Name: B Varun
+SRN: PES1UG24CS109
 
-## Getting Started
+2. Build, Load, and Run Instructions
 
-### 1. Fork the Repository
+Step 1: Install Dependencies  
+sudo apt update  
+sudo apt install -y build-essential linux-headers-$(uname -r)  
 
-1. Go to [github.com/shivangjhalani/OS-Jackfruit](https://github.com/shivangjhalani/OS-Jackfruit)
-2. Click **Fork** (top-right)
-3. Clone your fork:
+Step 2: Build the Project  
+cd boilerplate  
+make clean  
+make  
 
-```bash
-git clone https://github.com/<your-username>/OS-Jackfruit.git
-cd OS-Jackfruit
-```
+Step 3: Build Workload  
+gcc -O2 -Wall -static -o cpu_hog cpu_hog.c  
 
-### 2. Set Up Your VM
+Step 4: Copy Workload into Rootfs  
+cp cpu_hog rootfs-alpha/  
+cp cpu_hog rootfs-beta/  
+chmod +x rootfs-alpha/cpu_hog  
+chmod +x rootfs-beta/cpu_hog  
 
-You need an **Ubuntu 22.04 or 24.04** VM with **Secure Boot OFF**. WSL will not work.
+Step 5: Load Kernel Module  
+sudo insmod monitor.ko  
+lsmod | grep monitor  
 
-Install dependencies:
+Step 6: Run Containers  
+sudo ./engine start alpha ../rootfs-alpha dummy  
+sudo ./engine start beta ../rootfs-beta dummy  
 
-```bash
-sudo apt update
-sudo apt install -y build-essential linux-headers-$(uname -r)
-```
+Step 7: Check Containers  
+sudo ./engine ps  
 
-### 3. Run the Environment Check
 
-```bash
-cd boilerplate
-chmod +x environment-check.sh
-sudo ./environment-check.sh
-```
+3. Demo with Screenshots
 
-Fix any issues reported before moving on.
+Screenshot 1: Multi-Container Runtime  
+(Insert screenshot showing two cpu_hog processes running)
 
-### 4. Prepare the Root Filesystem
+Screenshot 2: CLI + IPC  
+(Insert screenshot showing start, already running, stop, ps)
 
-```bash
-mkdir rootfs-base
-wget https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-minirootfs-3.20.3-x86_64.tar.gz
-tar -xzf alpine-minirootfs-3.20.3-x86_64.tar.gz -C rootfs-base
+Screenshot 3: Logging Output  
+(Insert screenshot of logs.txt output)
 
-# Make one writable copy per container you plan to run
-cp -a ./rootfs-base ./rootfs-alpha
-cp -a ./rootfs-base ./rootfs-beta
-```
+Screenshot 4: Kernel Monitor  
+(Insert screenshot of lsmod and dmesg output)
 
-Do not commit `rootfs-base/` or `rootfs-*` directories to your repository.
+Screenshot 5: Scheduling Experiment  
+(Insert screenshot of top showing cpu_hog using CPU)
 
-### 5. Understand the Boilerplate
+Screenshot 6: Cleanup  
+(Insert screenshot showing no cpu_hog processes)
 
-The `boilerplate/` folder contains starter files:
 
-| File                   | Purpose                                             |
-| ---------------------- | --------------------------------------------------- |
-| `engine.c`             | User-space runtime and supervisor skeleton          |
-| `monitor.c`            | Kernel module skeleton                              |
-| `monitor_ioctl.h`      | Shared ioctl command definitions                    |
-| `Makefile`             | Build targets for both user-space and kernel module |
-| `cpu_hog.c`            | CPU-bound test workload                             |
-| `io_pulse.c`           | I/O-bound test workload                             |
-| `memory_hog.c`         | Memory-consuming test workload                      |
-| `environment-check.sh` | VM environment preflight check                      |
+4. Engineering Analysis
 
-Use these as your starting point. You are free to restructure the repository however you want — the submission requirements are listed in the project guide.
+4.1 Isolation Mechanisms
+The system provides basic isolation using Linux process separation. Each container is created using fork() and exec(), allowing workloads to run as independent processes. Although full namespace isolation (such as CLONE_NEWPID or CLONE_NEWNS) is not implemented, each container runs separately without interfering with others. All containers share the host kernel, similar to lightweight container environments.
 
-### 6. Build and Verify
+4.2 Supervisor and Process Lifecycle
+The engine acts as a controller for managing container lifecycle. It handles operations such as starting, stopping, and listing containers. Each container is associated with a process ID (PID), which is tracked internally. The lifecycle includes states such as running and stopped. Processes are terminated using signals, ensuring proper cleanup and avoiding leftover processes.
 
-```bash
-cd boilerplate
-make
-```
+4.3 IPC, Threads, and Synchronization
+The system uses a simple CLI-based control mechanism instead of complex IPC. Commands are directly handled by the engine, and no separate communication channels like sockets or pipes are used. The implementation does not require multithreading or synchronization primitives since operations are handled sequentially. This simplifies the design while still demonstrating control flow.
 
-If this compiles without errors, your environment is ready.
+4.4 Memory Management and Enforcement
+Memory management is handled by the Linux operating system. The project does not enforce strict memory limits using cgroups. However, the kernel module demonstrates how monitoring can be done at the kernel level. This highlights how real systems track memory usage and enforce limits to maintain system stability.
 
-### 7. GitHub Actions Smoke Check
+4.5 Scheduling Behavior
+Linux uses the Completely Fair Scheduler (CFS) to allocate CPU time among processes. In this project, CPU-intensive workloads (cpu_hog) are used to simulate scheduling behavior. When multiple containers run simultaneously, CPU resources are shared fairly. This is observed using tools like top, where multiple processes consume CPU concurrently.
 
-Your fork will inherit a minimal GitHub Actions workflow from this repository.
+5. Design Decisions and Tradeoffs
+• Used process-based isolation instead of namespaces to reduce complexity.  
+• Implemented CLI-based control instead of advanced IPC mechanisms.  
+• Used static binaries to avoid dependency issues inside minimal environments.  
+• Logging implemented using file redirection for simplicity.  
+• Kernel module used only for monitoring rather than strict enforcement.  
 
-That workflow only performs CI-safe checks:
+6. Scheduler Experiment Results
 
-- `make -C boilerplate ci`
-- user-space binary compilation (`engine`, `memory_hog`, `cpu_hog`, `io_pulse`)
-- `./boilerplate/engine` with no arguments must print usage and exit with a non-zero status
+Experiment    Container    Behavior
+A             alpha        High CPU usage
+A             beta         High CPU usage
 
-The CI-safe build command is:
+Analysis  
+Both containers compete for CPU resources when running simultaneously. The scheduler distributes CPU time fairly between them. This demonstrates how the Linux scheduler handles multiple CPU-bound processes.
 
-```bash
-make -C boilerplate ci
-```
-
-This smoke check does not test kernel-module loading, supervisor runtime behavior, or container execution.
-
----
-
-## What to Do Next
-
-Read [`project-guide.md`](project-guide.md) end to end. It contains:
-
-- The six implementation tasks (multi-container runtime, CLI, logging, kernel monitor, scheduling experiments, cleanup)
-- The engineering analysis you must write
-- The exact submission requirements, including what your `README.md` must contain (screenshots, analysis, design decisions)
-
-Your fork's `README.md` should be replaced with your own project documentation as described in the submission package section of the project guide. (As in get rid of all the above content and replace with your README.md)
+7. Conclusion
+This project demonstrates how a simple container runtime can be built using Linux system calls such as fork() and exec(). It highlights process management, logging, monitoring, and scheduling behavior. While simplified, the implementation provides a strong understanding of how real container systems operate and can be extended with advanced features such as namespaces and resource control.
