@@ -72,6 +72,12 @@ Screenshot 3: Logging Output
 <img width="1209" height="766" alt="10" src="https://github.com/user-attachments/assets/ca3ad984-c831-49ae-8bcd-457b6267a9e2" />
 
 
+Soft & Hard Limit Enforcement
+..
+
+<img width="1214" height="367" alt="WhatsApp Image 2026-04-24 at 12 21 22 PM" src="https://github.com/user-attachments/assets/661db489-e203-469a-ba45-f5ad298a1f23" />
+
+
 Screenshot 4: Kernel Monitor  
 
 <img width="857" height="339" alt="image" src="https://github.com/user-attachments/assets/6530671d-454d-4fda-9868-336906a08344" />
