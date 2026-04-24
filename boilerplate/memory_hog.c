@@ -1,64 +1,39 @@
-/*
- * memory_hog.c - Memory pressure workload for soft / hard limit testing.
- *
- * Default behavior:
- *   - allocate 8 MiB every second
- *   - touch each page so RSS actually grows
- *
- * Usage:
- *   /memory_hog [chunk_mb] [sleep_ms]
- *
- * If you plan to copy this binary into an Alpine rootfs, build it in a way
- * that is runnable inside that filesystem, such as static linking or
- * rebuilding it from inside the rootfs/toolchain you choose.
- */
-
+/* memory_hog.c - Memory consumer for limit testing */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-static size_t parse_size_mb(const char *arg, size_t fallback)
-{
-    char *end = NULL;
-    unsigned long value = strtoul(arg, &end, 10);
-
-    if (!arg || *arg == '\0' || (end && *end != '\0') || value == 0)
-        return fallback;
-    return (size_t)value;
-}
-
-static useconds_t parse_sleep_ms(const char *arg, useconds_t fallback)
-{
-    char *end = NULL;
-    unsigned long value = strtoul(arg, &end, 10);
-
-    if (!arg || *arg == '\0' || (end && *end != '\0'))
-        return fallback;
-    return (useconds_t)(value * 1000U);
-}
-
 int main(int argc, char *argv[])
 {
-    const size_t chunk_mb = (argc > 1) ? parse_size_mb(argv[1], 8) : 8;
-    const useconds_t sleep_us = (argc > 2) ? parse_sleep_ms(argv[2], 1000U) : 1000U * 1000U;
-    const size_t chunk_bytes = chunk_mb * 1024U * 1024U;
-    int count = 0;
+    int target_mib = (argc > 1) ? atoi(argv[1]) : 50;
+    int step_mib   = (argc > 2) ? atoi(argv[2]) : 5;
+    int sleep_sec  = (argc > 3) ? atoi(argv[3]) : 2;
 
-    while (1) {
-        char *mem = malloc(chunk_bytes);
-        if (!mem) {
-            printf("malloc failed after %d allocations\n", count);
-            break;
-        }
+    printf("memory_hog: will allocate up to %d MiB in %d MiB steps\n",
+           target_mib, step_mib);
+    fflush(stdout);
 
-        memset(mem, 'A', chunk_bytes);
-        count++;
-        printf("allocation=%d chunk=%zuMB total=%zuMB\n",
-               count, chunk_mb, (size_t)count * chunk_mb);
+    char **chunks = calloc(target_mib / step_mib + 2, sizeof(char*));
+    int n = 0;
+
+    for (int alloc = 0; alloc < target_mib; alloc += step_mib) {
+        size_t sz = (size_t)step_mib * 1024 * 1024;
+        char *p = malloc(sz);
+        if (!p) { printf("memory_hog: malloc failed at %d MiB\n", alloc); break; }
+        /* touch pages so RSS actually grows */
+        memset(p, 0xAB, sz);
+        chunks[n++] = p;
+        printf("memory_hog: allocated %d MiB so far\n", alloc + step_mib);
         fflush(stdout);
-        usleep(sleep_us);
+        sleep(sleep_sec);
     }
 
+    printf("memory_hog: holding allocation, sleeping 60s\n");
+    fflush(stdout);
+    sleep(60);
+
+    for (int i = 0; i < n; i++) free(chunks[i]);
+    free(chunks);
     return 0;
 }
