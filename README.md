@@ -51,7 +51,9 @@ sudo ./engine ps
 ------------------------------------------------------------
 
 Screenshot 1: Multi-Container Runtime  
-(Insert screenshot showing two cpu_hog processes running)
+
+(Insert screenshot showing two cpu_hog processes running)<img width="952" height="213" alt="image" src="https://github.com/user-attachments/assets/9d1576a2-8be4-4575-a8e8-3fb04e6fe908" />
+
 
 Screenshot 2: CLI + IPC  
 (Insert screenshot showing start, already running, stop, ps)
